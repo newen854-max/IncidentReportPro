@@ -1,143 +1,73 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, ScrollView, Alert } from "react-native";
-import { Button, Card } from "react-native-paper";
+import React, { useState } from "react";
+import { View, TextInput, Alert } from "react-native";
+import { Card, Text, Button } from "react-native-paper";
 import * as SQLite from "expo-sqlite";
 
 const db = SQLite.openDatabase("hse.db");
 
-export default function Incidents() {
+export default function IncidentDetail({ route, navigation }) {
 
-  const [list, setList] = useState([]);
+  const { incident } = route.params;
 
-  const [form, setForm] = useState({
-    severity: "",
-    description: "",
-    location: ""
-  });
+  const [severity, setSeverity] = useState(incident.severity);
+  const [description, setDescription] = useState(incident.description);
+  const [location, setLocation] = useState(incident.location);
 
-  /* ================= INIT DB ================= */
-  useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql(`
-        CREATE TABLE IF NOT EXISTS incidents (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          incident_no TEXT,
-          severity TEXT,
-          description TEXT,
-          location TEXT,
-          status TEXT
-        );
-      `);
-    });
-
-    loadData();
-  }, []);
-
-  /* ================= LOAD ================= */
-  const loadData = () => {
+  // UPDATE INCIDENT
+  const updateIncident = () => {
     db.transaction(tx => {
       tx.executeSql(
-        "SELECT * FROM incidents ORDER BY id DESC",
-        [],
-        (_, { rows }) => setList(rows._array)
-      );
-    });
-  };
-
-  /* ================= CREATE ================= */
-  const addIncident = () => {
-
-    if (!form.description || !form.location) {
-      Alert.alert("Fill all fields");
-      return;
-    }
-
-    const incNo = "INC-" + Math.floor(Math.random() * 99999);
-
-    db.transaction(tx => {
-      tx.executeSql(
-        `INSERT INTO incidents
-        (incident_no, severity, description, location, status)
-        VALUES (?, ?, ?, ?, ?)`,
-        [incNo, form.severity, form.description, form.location, "Open"],
+        `UPDATE incidents 
+         SET severity=?, description=?, location=? 
+         WHERE id=?`,
+        [severity, description, location, incident.id],
         () => {
-          setForm({ severity: "", description: "", location: "" });
-          loadData();
+          Alert.alert("Updated Successfully");
+          navigation.goBack();
         }
       );
     });
   };
 
-  /* ================= CLOSE ================= */
-  const closeIncident = (id) => {
+  // DELETE INCIDENT
+  const deleteIncident = () => {
     db.transaction(tx => {
       tx.executeSql(
-        "UPDATE incidents SET status='Closed' WHERE id=?",
-        [id],
-        () => loadData()
+        "DELETE FROM incidents WHERE id=?",
+        [incident.id],
+        () => {
+          Alert.alert("Deleted");
+          navigation.goBack();
+        }
       );
     });
   };
 
   return (
-    <ScrollView style={{ padding: 15 }}>
+    <View style={{ padding: 15 }}>
 
-      <Text style={{ fontSize: 22, fontWeight: "bold" }}>
-        Incident Management
+      <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+        Incident Detail
       </Text>
 
-      {/* FORM */}
       <Card style={{ marginVertical: 10 }}>
         <Card.Content>
 
-          <TextInput
-            placeholder="Severity"
-            value={form.severity}
-            onChangeText={(t) => setForm({ ...form, severity: t })}
-            style={{ borderWidth: 1, marginBottom: 5 }}
-          />
+          <TextInput value={severity} onChangeText={setSeverity} style={{ borderWidth: 1, marginBottom: 5 }} />
+          <TextInput value={description} onChangeText={setDescription} style={{ borderWidth: 1, marginBottom: 5 }} />
+          <TextInput value={location} onChangeText={setLocation} style={{ borderWidth: 1, marginBottom: 5 }} />
 
-          <TextInput
-            placeholder="Description"
-            value={form.description}
-            onChangeText={(t) => setForm({ ...form, description: t })}
-            style={{ borderWidth: 1, marginBottom: 5 }}
-          />
+          <Button mode="contained" onPress={updateIncident}>
+            Update Incident
+          </Button>
 
-          <TextInput
-            placeholder="Location"
-            value={form.location}
-            onChangeText={(t) => setForm({ ...form, location: t })}
-            style={{ borderWidth: 1, marginBottom: 5 }}
-          />
-
-          <Button mode="contained" onPress={addIncident}>
-            Save Incident
+          <Button textColor="red" onPress={deleteIncident}>
+            Delete Incident
           </Button>
 
         </Card.Content>
       </Card>
 
-      {/* LIST */}
-      {list.map(item => (
-        <Card key={item.id} style={{ marginBottom: 10 }}>
-          <Card.Content>
-
-            <Text>{item.incident_no}</Text>
-            <Text>Severity: {item.severity}</Text>
-            <Text>Status: {item.status}</Text>
-            <Text>{item.location}</Text>
-
-            {item.status === "Open" && (
-              <Button onPress={() => closeIncident(item.id)}>
-                Close
-              </Button>
-            )}
-
-          </Card.Content>
-        </Card>
-      ))}
-
-    </ScrollView>
+    </View>
   );
 }
