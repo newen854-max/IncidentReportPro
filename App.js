@@ -1,11 +1,34 @@
 import React from "react";
 import { Provider as PaperProvider } from "react-native-paper";
-import MainScreen from "./src/screens/MainScreen";
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
+import Dashboard from "./src/screens/Dashboard";
+import Incidents from "./src/screens/Incidents";
+import Actions from "./src/screens/Actions";
+import Reports from "./src/screens/Reports";
+import Settings from "./src/screens/Settings";
+
+const Tab = createBottomTabNavigator();
+
+function MainApp() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Dashboard" component={Dashboard} />
+      <Tab.Screen name="Incidents" component={Incidents} />
+      <Tab.Screen name="Actions" component={Actions} />
+      <Tab.Screen name="Reports" component={Reports} />
+      <Tab.Screen name="Settings" component={Settings} />
+    </Tab.Navigator>
+  );
+}
 
 export default function App() {
   return (
     <PaperProvider>
-      <MainScreen />
+      <NavigationContainer>
+        <MainApp />
+      </NavigationContainer>
     </PaperProvider>
   );
 }
