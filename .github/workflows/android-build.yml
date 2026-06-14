@@ -24,8 +24,11 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli expo-cli
 
-      - name: Login check
-        run: echo "Starting EAS build..."
+      - name: Set Expo token directly
+        run: |
+          echo "EXPO_TOKEN=expo_dummy_token_for_now" >> $GITHUB_ENV
 
       - name: Build Android APK using EAS
+        env:
+          EXPO_TOKEN: expo_dummy_token_for_now
         run: eas build -p android --profile preview --non-interactive
