@@ -121,7 +121,11 @@ export default function Incidents() {
       </Card>
 
       {/* LIST */}
-      {list.map(item => (
+      <Card
+  onPress={() =>
+    navigation.navigate("IncidentDetail", { incident: item })
+  }
+>
         <Card key={item.id} style={{ marginBottom: 10 }}>
           <Card.Content>
 
