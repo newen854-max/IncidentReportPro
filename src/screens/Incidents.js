@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, ScrollView, Alert } from "react-native";
 import { Button, Card } from "react-native-paper";
@@ -6,6 +7,7 @@ import * as SQLite from "expo-sqlite";
 const db = SQLite.openDatabase("hse.db");
 
 export default function Incidents() {
+  const navigation = useNavigation();
 
   const [list, setList] = useState([]);
 
