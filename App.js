@@ -1,3 +1,6 @@
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import IncidentDetail from "./src/screens/IncidentDetail";
+import Incidents from "./src/screens/Incidents";
 import React from "react";
 import { Provider as PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
@@ -24,7 +27,16 @@ function MainApp() {
 }
 
 export default function App() {
+ const Stack = createNativeStackNavigator();
+
+function IncidentStack() {
   return (
+    <Stack.Navigator>
+      <Stack.Screen name="IncidentsList" component={Incidents} />
+      <Stack.Screen name="IncidentDetail" component={IncidentDetail} />
+    </Stack.Navigator>
+  );
+} return (
     <PaperProvider>
       <NavigationContainer>
         <MainApp />
